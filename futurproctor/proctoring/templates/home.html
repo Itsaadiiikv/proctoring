@@ -21,9 +21,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{% url 'home' %}">Home</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#divAbout">About</a></li>
+                    <li class="nav-item"><a class="nav-link"href="#divContact">Contact</a></li>
                     <li class="nav-item"><a class="btn btn-primary" href="{% url 'login' %}" role="button">Login</a></li>
                     <li class="nav-item"><a class="btn btn-secondary ms-2" href="{% url 'registration' %}" role="button">Register</a></li>
                 </ul>
@@ -37,7 +37,7 @@
                     <h1 class="display-4">AI-Based Online Exam Proctoring System</h1>
                     <h2 class="mb-4">A Proctoring System Powered by Artificial Intelligence!</h2>
                     <div class="cta-buttons">
-                        <a href="https://youtu.be/O8kfFmwkfOU" class="btn btn-primary btn-lg me-3">Watch Promo Video</a>
+                        <!-- <a href="https://youtu.be/O8kfFmwkfOU" class="btn btn-primary btn-lg me-3">Watch Promo Video</a> -->
                         {% comment %} <a href="#" class="btn btn-outline-primary btn-lg">Detailed Presentation</a> {% endcomment %}
                     </div>
                 </div>
@@ -49,22 +49,18 @@
             </div>
         </div>
     </main>
-    {% load static %}
-<section class="ai-proctor-features">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <div class="ai-proctor-illustration">
-                    <img src="{% static 'images/ai-sec.png' %}" alt="AI Proctor Illustration" class="img-fluid ai-head-image">
-                    <div class="ai-head-graphic">
-                        <div class="ai-text">AI</div>
-                        <div class="circuit-lines"></div>
-                        <div class="floating-dots"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="features-content">
+
+            <!-- About-->
+         <section id="divAbout" class="ai-proctor-features">
+
+             <div class="container">
+              <div class="row align-items-center">
+
+              <div class="col-lg-6">
+               <img src="{% static 'images/ai-sec.png' %}" class="img-fluid">
+                 </div>
+
+                    <div class="col-lg-6"> 
                     <h2 class="section-title">AI-Based Online Exam Proctoring System</h2>
                     <h3 class="section-subtitle">A Necessary Ingredient for Credible Online Certificates!</h3>
                     <ul class="features-list">
@@ -156,7 +152,7 @@
 </section>
 
 <!-- Contact Section -->
-<section class="contact-section">
+<section id="divContact" class="contact-section">
     <div class="container">
         <div class="row">
             <div class="col-12 text-center mb-5">
@@ -213,5 +209,6 @@
 </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
+
+  

@@ -1,0 +1,66 @@
+{
+  "exam_title": "General Aptitude Test",
+  "total_questions": 10,
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is 5 + 7?",
+      "options": ["10", "11", "12", "13"],
+      "answer": "12"
+    },
+    {
+      "id": 2,
+      "question": "Which is the capital of India?",
+      "options": ["Mumbai", "Delhi", "Kolkata", "Chennai"],
+      "answer": "Delhi"
+    },
+    {
+      "id": 3,
+      "question": "HTML stands for?",
+      "options": ["Hyper Text Markup Language", "High Text Machine Language", "Hyper Tool Multi Language", "None"],
+      "answer": "Hyper Text Markup Language"
+    },
+    {
+      "id": 4,
+      "question": "What is 9 × 3?",
+      "options": ["18", "21", "27", "24"],
+      "answer": "27"
+    },
+    {
+      "id": 5,
+      "question": "Which language is used for Django?",
+      "options": ["Java", "Python", "C++", "PHP"],
+      "answer": "Python"
+    },
+    {
+      "id": 6,
+      "question": "CPU stands for?",
+      "options": ["Central Process Unit", "Central Processing Unit", "Computer Personal Unit", "None"],
+      "answer": "Central Processing Unit"
+    },
+    {
+      "id": 7,
+      "question": "What is the square root of 64?",
+      "options": ["6", "7", "8", "9"],
+      "answer": "8"
+    },
+    {
+      "id": 8,
+      "question": "Which is a programming language?",
+      "options": ["Python", "HTML", "CSS", "Photoshop"],
+      "answer": "Python"
+    },
+    {
+      "id": 9,
+      "question": "Internet works on which protocol?",
+      "options": ["HTTP", "FTP", "TCP/IP", "SMTP"],
+      "answer": "TCP/IP"
+    },
+    {
+      "id": 10,
+      "question": "2^5 equals?",
+      "options": ["16", "32", "64", "128"],
+      "answer": "32"
+    }
+  ]
+}

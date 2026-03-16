@@ -21,3 +21,8 @@ admin.site.register(CheatingEvent)
 admin.site.register(Exam)
 admin.site.register(CheatingImage)
 admin.site.register(CheatingAudio)
+# my ##
+from django.contrib import admin
+from .models import Question
+
+admin.site.register(Question)

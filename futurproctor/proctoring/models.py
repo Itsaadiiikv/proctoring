@@ -30,25 +30,44 @@ class Student(models.Model):
 
     def __str__(self):
         return self.name
-
+### Exam area
 class Exam(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exams', null=True, blank=True)
-    exam_name = models.CharField(max_length=255, default='Default Exam Name')
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='exams',
+        null=True,
+        blank=True
+    )
+
+    exam_name = models.CharField(max_length=255, default="AI Exam")
+
     total_questions = models.IntegerField(null=True, blank=True)
+
     correct_answers = models.IntegerField(null=True, blank=True)
-    timestamp = models.DateTimeField(default=datetime.now())
+
+    timestamp = models.DateTimeField(default=datetime.now)
+
     status = models.CharField(
         max_length=50,
-        choices=[('ongoing', 'Ongoing'), ('completed', 'Completed'), ('cancelled', 'Cancelled')],
-        default='ongoing'
+        choices=[
+            ('ongoing', 'Ongoing'),
+            ('completed', 'Completed'),
+            ('cancelled', 'Cancelled')
+        ],
+        default='completed'
     )
+
     percentage_score = models.FloatField(null=True, blank=True)
 
     def calculate_percentage(self):
         if self.total_questions and self.total_questions > 0:
-            self.percentage_score = round((self.correct_answers / self.total_questions) * 100, 2)
+            self.percentage_score = round(
+                (self.correct_answers / self.total_questions) * 100, 2
+            )
         else:
             self.percentage_score = 0.0
+
         self.save()
 
     def __str__(self):
@@ -78,3 +97,14 @@ class CheatingAudio(models.Model):
     event = models.ForeignKey(CheatingEvent, on_delete=models.CASCADE, related_name='cheating_audios')
     audio = models.FileField(upload_to='cheating_audios/', blank=True, null=True)
     timestamp = models.DateTimeField(default=datetime.now())
+     ### EXAM QUESTION FILE
+class Question(models.Model):
+    question_text = models.TextField()
+    option_a = models.CharField(max_length=255)
+    option_b = models.CharField(max_length=255)
+    option_c = models.CharField(max_length=255)
+    option_d = models.CharField(max_length=255)
+    correct_answer = models.CharField(max_length=1)
+
+    def __str__(self):
+        return self.question_text

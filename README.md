@@ -53,7 +53,7 @@ Watch the demo here: [https://youtu.be/O8kfFmwkfOU](https://youtu.be/O8kfFmwkfOU
    pip install -r requirements.txt
    ```
 
-4. **Set Up Database**
+4. **Set Up Database**07oiu  
    - Ensure Postgress is running.
    - Configure database settings in `settings.py`.
 

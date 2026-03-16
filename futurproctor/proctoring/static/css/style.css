@@ -167,7 +167,7 @@ body {
     font-size: 2.5rem;
     margin-bottom: 1rem;
     font-weight: bold;
-    color: white;
+    color:black;
     
     
 }
@@ -176,20 +176,20 @@ body {
     font-size: 1.5rem;
     margin-bottom: 2rem;
     font-weight: 300;
-    color: white;
+    color: black;
 }
 
 .features-list {
     list-style-type: none;
     padding: 0;
-    color: white;
+    color: black;
 }
 
 .features-list li {
     position: relative;
     padding-left: 30px;
     margin-bottom: 0.75rem;
-    color: white;
+    color: black;
 }
 
 .features-list li::before {
@@ -208,14 +208,14 @@ body {
 
 .section-title {
     font-size: 2.5rem;
-    color: white;
+    color: black;
     margin-bottom: 1rem;
     font-weight: bold;
 }
 
 .section-subtitle {
     font-size: 1.2rem;
-    color: white;
+    color: black;
     margin-bottom: 3rem;
 }
 
@@ -274,4 +274,81 @@ body {
     .feature-card {
         margin-bottom: 1.5rem;
     }
+}
+
+/* EXAM PAGE LAYOUT */
+
+.exam-container{
+    display:flex;
+    height:100vh;
+}
+
+/* LEFT SIDE QUESTION AREA */
+
+.question-section{
+    width:75%;
+    padding:30px;
+    background:#f5f5f5;
+}
+
+/* RIGHT QUESTION PANEL */
+
+.question-palette{
+    width:25%;
+    background:#ffffff;
+    border-left:2px solid #ddd;
+    padding:20px;
+}
+
+/* QUESTION BOX */
+
+.question-box{
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    margin-top:20px;
+}
+
+/* OPTIONS */
+
+.options label{
+    display:block;
+    padding:10px;
+    margin:8px 0;
+    border:1px solid #ddd;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+/* QUESTION GRID */
+
+.question-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+}
+
+.question-grid button{
+    height:40px;
+    border:none;
+    background:#e0e0e0;
+    border-radius:5px;
+}
+
+/* TIMER */
+
+.timer{
+    font-size:18px;
+    font-weight:bold;
+    color:#d9534f;
+}
+
+/* BUTTONS */
+
+.exam-buttons{
+    margin-top:20px;
+}
+
+.exam-buttons button{
+    margin-right:10px;
 }

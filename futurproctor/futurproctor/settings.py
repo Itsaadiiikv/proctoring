@@ -76,17 +76,18 @@ WSGI_APPLICATION = 'futurproctor.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'proctoring_database',
+        'NAME': 'final_year',
         'USER': 'postgres',
-        'PASSWORD': 'ram123',
+        'PASSWORD': 'Aditya',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
+
+
 
 
 

@@ -1,244 +1,321 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exam Page</title>
-  <!-- Bootstrap CSS -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-  <style>
-    .timer {
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-    .question-card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
-      background-color: #f8f9fa;
-    }
-    .option-tile {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin: 5px 0;
-      cursor: pointer;
-    }
-    .option-tile:hover,
-    .selected {
-      background-color: #0d6efd;
-      color: white;
-    }
-    .submit-btn {
-      background-color: #198754;
-      color: white;
-      font-size: 1.2rem;
-    }
-    /* Position the warning alert at the top-right */
-    #warning-alert {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Exam Portal</title>
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+
+<style>
+
+body{
+background:#f4f6f9;
+font-family:Arial;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 30px;
+background:#0d6efd;
+color:white;
+}
+
+.timer{
+font-size:20px;
+font-weight:bold;
+}
+
+.exam-container{
+display:flex;
+padding:20px;
+gap:20px;
+}
+
+.question-section{
+flex:3;
+background:white;
+padding:20px;
+border-radius:8px;
+}
+
+.palette{
+flex:1;
+background:white;
+padding:20px;
+border-radius:8px;
+}
+
+.option-tile{
+padding:12px;
+border:1px solid #ccc;
+border-radius:5px;
+margin-bottom:10px;
+cursor:pointer;
+}
+
+.option-tile.selected{
+background:#0d6efd;
+color:white;
+}
+
+.qbtn{
+width:40px;
+height:40px;
+margin:4px;
+border:none;
+background:#ddd;
+border-radius:4px;
+cursor:pointer;
+}
+
+.qbtn.active{
+background:#0d6efd;
+color:white;
+}
+
+.legend span{
+display:inline-block;
+width:15px;
+height:15px;
+margin-right:5px;
+}
+
+.green{background:green;}
+.orange{background:orange;}
+.pink{background:pink;}
+.gray{background:gray;}
+
+.submit-btn{
+background:#198754;
+color:white;
+width:100%;
+margin-top:15px;
+}
+
+</style>
 </head>
+
 <body>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col-md-8 offset-md-2">
-        <h1 class="text-center mb-4 text-primary">Exam Portal</h1>
 
-        <!-- Exam Info -->
-        <div class="text-center mb-3">
-          <p>
-            <strong>Full Marks:</strong> 100 |
-            <strong>Pass Marks:</strong> 40
-          </p>
-        </div>
+<div class="header">
 
-        <!-- Tab Switch Counter -->
-        <div class="alert alert-danger text-center" id="tab-warning">
-          Tab Switches: <span id="tab-count">{{ tab_count }},</span>/5
-        </div>
+<h2>Online Examination Portal</h2>
 
-        <!-- Timer -->
-        <div id="timer" class="timer text-center mb-3">
-          Time Left: <span id="time"></span>
-        </div>
+<div class="timer">
+Time Left: <span id="time"></span>
+</div>
 
-        <!-- Questions -->
-        <form id="exam-form" method="post" action="{% url 'submit_exam' %}">
-          {% csrf_token %}
-          <input type="hidden" name="username" value="{{ user.first_name }}" />
-
-          {% for question in questions %}
-          <div class="question-card">
-            <p class="question-text">
-              <strong>{{ forloop.counter }}.</strong> {{ question.text }}
-            </p>
-            <div class="option-tile" onclick="selectOption(this, 'q{{ question.id }}a')">
-              <input
-                type="radio"
-                name="answer_{{ question.id }}"
-                id="q{{ question.id }}a"
-                value="A"
-                required
-              />
-              <label for="q{{ question.id }}a">A. {{ question.option_a }}</label>
-            </div>
-            <div class="option-tile" onclick="selectOption(this, 'q{{ question.id }}b')">
-              <input type="radio" name="answer_{{ question.id }}" id="q{{ question.id }}b" value="B" />
-              <label for="q{{ question.id }}b">B. {{ question.option_b }}</label>
-            </div>
-            <div class="option-tile" onclick="selectOption(this, 'q{{ question.id }}c')">
-              <input type="radio" name="answer_{{ question.id }}" id="q{{ question.id }}c" value="C" />
-              <label for="q{{ question.id }}c">C. {{ question.option_c }}</label>
-            </div>
-            <div class="option-tile" onclick="selectOption(this, 'q{{ question.id }}d')">
-              <input type="radio" name="answer_{{ question.id }}" id="q{{ question.id }}d" value="D" />
-              <label for="q{{ question.id }}d">D. {{ question.option_d }}</label>
-            </div>
-          </div>
-          {% endfor %}
-
-          <!-- Submit Button -->
-          <div class="text-center mt-4">
-            <button type="submit" class="btn submit-btn">Submit Exam</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-<!-- Real-time warning alert (now pure red) -->
-<div id="warning-alert" class="alert" style="display: none; background-color: #FF0000; color: white; font-weight: bold;"></div>
+</div>
 
 
-  <script>
-    // Timer Logic
-    let totalTime = 5 * 60; // 5 minutes in seconds
-    const timerElement = document.getElementById("time");
+<div class="exam-container">
 
-    function startTimer() {
-      const timer = setInterval(() => {
-        const minutes = Math.floor(totalTime / 60);
-        const seconds = totalTime % 60;
-        timerElement.textContent = `${minutes}:${
-          seconds < 10 ? "0" : ""
-        }${seconds}`;
 
-        if (totalTime === 0) {
-          clearInterval(timer);
-          alert("Time's up! Submitting the exam.");
-          document.getElementById("exam-form").submit();
-        }
-        totalTime--;
-      }, 1000);
-    }
-    window.onload = startTimer;
+<!-- LEFT QUESTION AREA -->
 
-    // Function to handle option selection
-    function selectOption(optionTile, inputId) {
-      const questionCard = optionTile.closest(".question-card");
-      questionCard.querySelectorAll(".option-tile").forEach((tile) => {
-        tile.classList.remove("selected");
-      });
-      optionTile.classList.add("selected");
-      document.getElementById(inputId).checked = true;
-    }
+<div class="question-section">
 
-    // Fetch real-time warnings
-    function checkWarnings() {
-      fetch("/get_warning/")
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.warning) {
-            const warningAlert = document.getElementById("warning-alert");
-            warningAlert.textContent = data.warning;
-            warningAlert.style.display = "block";
-          }
-        });
-    }
-    setInterval(checkWarnings, 5000);
+<form id="exam-form" method="post" action="{% url 'submit_exam' %}">
+{% csrf_token %}
 
-    // Prevent right-click
-    document.addEventListener("contextmenu", (e) => e.preventDefault());
+{% for question in questions %}
 
-    // Prevent tab switching
-    window.addEventListener("blur", () => {
-      alert("You cannot switch tabs or windows during the exam!");
-      window.focus();
-    });
+<div class="question-card mb-4">
 
-    // Prevent exiting fullscreen mode
-    document.addEventListener("fullscreenchange", () => {
-      if (!document.fullscreenElement) {
-        alert("You cannot exit fullscreen mode during the exam!");
-        document.documentElement.requestFullscreen();
-      }
-    });
+<p><strong>{{ forloop.counter }}.</strong> {{ question.text }}</p>
 
-    
-      // Enter fullscreen mode
-      document.documentElement.requestFullscreen();
-    
-      // Initialize the tab switch count (defaulting to 0 if not provided)
-      let tabSwitchCount = {{ tab_count|default:0 }};
-      
-      // Keep track of the previous visibility state
-      let lastVisibilityState = document.visibilityState;
-    
-      // Define the tab switch handler
-      function tabSwitchHandler() {
-        // Only count a switch if the page goes from 'visible' to 'hidden'
-        if (lastVisibilityState === 'visible' && document.visibilityState === 'hidden') {
-          tabSwitchCount++;
-          document.getElementById("tab-count").textContent = tabSwitchCount;
-    
-          // Send a POST request to record the tab switch
-          fetch("{% url 'record_tab_switch' %}", {
-            method: "POST",
-            headers: { "X-CSRFToken": "{{ csrf_token }}" },
-          })
-          .then(response => response.json())
-          .then(data => {
-             // If termination condition is met, alert and redirect (or submit termination logic)
-             if (data.status === "terminated") {
-               alert(data.message);
-               // Redirect to a termination page or home (ensure you have this URL configured)
-               window.location.href = "{% url 'exam_submission_success' %}";
-             } else {
-               // Optionally alert on each tab switch when exam is ongoing
-               if (tabSwitchCount >= 1) {
-                 alert("Warning: Tab switch detected! Total switches: " + tabSwitchCount);
-               }
-             }
-          })
-          .catch(error => console.error('Error:', error));
-        }
-        // Update the last known visibility state
-        lastVisibilityState = document.visibilityState;
-      }
-    
-      // Listen for visibility changes
-      document.addEventListener("visibilitychange", tabSwitchHandler);
-    
-      // Prevent accidental closing or refreshing of the exam page
-      window.onbeforeunload = function () {
-        return "You are in the middle of an exam! Are you sure you want to leave?";
-      };
-    
-      // When the exam is submitted, remove the event listener and onbeforeunload warning
-      document.getElementById("exam-form").addEventListener("submit", function () {
-        window.onbeforeunload = null;
-        document.removeEventListener("visibilitychange", tabSwitchHandler);
-      });
-    </script>
-    
+<div class="option-tile"
+onclick="selectOption(this,'q{{question.id}}a')">
+<input type="radio"
+name="answer_{{question.id}}"
+id="q{{question.id}}a"
+value="A" hidden>
+A. {{question.option_a}}
+</div>
+
+<div class="option-tile"
+onclick="selectOption(this,'q{{question.id}}b')">
+<input type="radio"
+name="answer_{{question.id}}"
+id="q{{question.id}}b"
+value="B" hidden>
+B. {{question.option_b}}
+</div>
+
+<div class="option-tile"
+onclick="selectOption(this,'q{{question.id}}c')">
+<input type="radio"
+name="answer_{{question.id}}"
+id="q{{question.id}}c"
+value="C" hidden>
+C. {{question.option_c}}
+</div>
+
+<div class="option-tile"
+onclick="selectOption(this,'q{{question.id}}d')">
+<input type="radio"
+name="answer_{{question.id}}"
+id="q{{question.id}}d"
+value="D" hidden>
+D. {{question.option_d}}
+</div>
+
+</div>
+
+{% endfor %}
+
+<button type="submit" class="btn submit-btn">
+Submit Exam
+</button>
+
+</form>
+
+</div>
+
+
+
+<!-- RIGHT QUESTION PALETTE -->
+
+<div class="palette">
+
+<h5>Question Palette</h5>
+
+<div id="questionPanel"></div>
+
+<div class="legend mt-3">
+
+<p><span class="green"></span> Answered</p>
+<p><span class="orange"></span> Not Answered</p>
+<p><span class="pink"></span> Marked</p>
+<p><span class="gray"></span> Not Visited</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- WARNING ALERT -->
+
+<div id="warning-alert"
+style="display:none;
+position:fixed;
+top:20px;
+right:20px;
+background:red;
+color:white;
+padding:10px;
+font-weight:bold;">
+</div>
+
+
+
+<script>
+
+/* ---------------- TIMER ---------------- */
+
+let totalTime = 5*60;
+let timerElement=document.getElementById("time");
+
+function startTimer(){
+
+let timer=setInterval(()=>{
+
+let m=Math.floor(totalTime/60);
+let s=totalTime%60;
+
+timerElement.innerHTML=m+":"+(s<10?"0":"")+s;
+
+if(totalTime==0){
+clearInterval(timer);
+alert("Time Up!");
+document.getElementById("exam-form").submit();
+}
+
+totalTime--;
+
+},1000);
+
+}
+
+startTimer();
+
+
+/* ---------------- OPTION SELECT ---------------- */
+
+function selectOption(tile,inputId){
+
+let questionCard=tile.closest(".question-card");
+
+questionCard.querySelectorAll(".option-tile")
+.forEach(t=>t.classList.remove("selected"));
+
+tile.classList.add("selected");
+
+document.getElementById(inputId).checked=true;
+
+}
+
+
+/* ---------------- QUESTION PALETTE ---------------- */
+
+let totalQuestions={{questions|length}};
+
+for(let i=1;i<=totalQuestions;i++){
+
+document.getElementById("questionPanel").innerHTML+=
+`<button class="qbtn"
+onclick="scrollToQuestion(${i})">${i}</button>`;
+
+}
+
+function scrollToQuestion(q){
+
+let cards=document.querySelectorAll(".question-card");
+
+cards[q-1].scrollIntoView({behavior:"smooth"});
+
+}
+
+
+/* ---------------- WARNING FETCH ---------------- */
+
+function checkWarnings(){
+
+fetch("/get_warning/")
+.then(res=>res.json())
+.then(data=>{
+
+if(data.warning){
+
+let box=document.getElementById("warning-alert");
+
+box.innerHTML=data.warning;
+box.style.display="block";
+
+}
+
+});
+
+}
+
+setInterval(checkWarnings,5000);
+
+
+/* ---------------- SECURITY ---------------- */
+
+document.getElementById("exam-form").addEventListener("submit", function () {
+
+    window.onbeforeunload = null;
+    document.removeEventListener("visibilitychange", tabSwitchHandler);
+
+});
+</script>
+
 </body>
 </html>
