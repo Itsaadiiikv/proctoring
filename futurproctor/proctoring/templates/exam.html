@@ -1,12 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <title>Exam Portal</title>
 
 <link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
 <style>
 
@@ -67,15 +68,15 @@ width:40px;
 height:40px;
 margin:4px;
 border:none;
-background:#ddd;
 border-radius:4px;
 cursor:pointer;
+background:#ddd;
 }
 
-.qbtn.active{
-background:#0d6efd;
-color:white;
-}
+.green{background:green;color:white;}
+.orange{background:orange;color:white;}
+.pink{background:pink;}
+.gray{background:#ddd;}
 
 .legend span{
 display:inline-block;
@@ -83,11 +84,6 @@ width:15px;
 height:15px;
 margin-right:5px;
 }
-
-.green{background:green;}
-.orange{background:orange;}
-.pink{background:pink;}
-.gray{background:gray;}
 
 .submit-btn{
 background:#198754;
@@ -102,20 +98,17 @@ margin-top:15px;
 <body>
 
 <div class="header">
-
 <h2>Online Examination Portal</h2>
 
 <div class="timer">
 Time Left: <span id="time"></span>
 </div>
-
 </div>
 
 
 <div class="exam-container">
 
-
-<!-- LEFT QUESTION AREA -->
+<!-- QUESTION AREA -->
 
 <div class="question-section">
 
@@ -164,6 +157,31 @@ value="D" hidden>
 D. {{question.option_d}}
 </div>
 
+
+<!-- CONTROL BUTTONS -->
+
+<div class="mt-3">
+
+<button type="button"
+class="btn btn-primary"
+onclick="saveNext({{forloop.counter}})">
+Save & Next
+</button>
+
+<button type="button"
+class="btn btn-warning"
+onclick="markReview({{forloop.counter}})">
+Mark for Review
+</button>
+
+<button type="button"
+class="btn btn-secondary"
+onclick="skipQuestion({{forloop.counter}})">
+Skip
+</button>
+
+</div>
+
 </div>
 
 {% endfor %}
@@ -178,7 +196,7 @@ Submit Exam
 
 
 
-<!-- RIGHT QUESTION PALETTE -->
+<!-- QUESTION PALETTE -->
 
 <div class="palette">
 
@@ -188,10 +206,13 @@ Submit Exam
 
 <div class="legend mt-3">
 
-<p><span class="green"></span> Answered</p>
-<p><span class="orange"></span> Not Answered</p>
-<p><span class="pink"></span> Marked</p>
-<p><span class="gray"></span> Not Visited</p>
+<p><span style="background:green;width:15px;height:15px;display:inline-block"></span> Answered</p>
+
+<p><span style="background:orange;width:15px;height:15px;display:inline-block"></span> Not Answered</p>
+
+<p><span style="background:pink;width:15px;height:15px;display:inline-block"></span> Marked for Review</p>
+
+<p><span style="background:#ddd;width:15px;height:15px;display:inline-block"></span> Not Visited</p>
 
 </div>
 
@@ -217,10 +238,10 @@ font-weight:bold;">
 
 <script>
 
-/* ---------------- TIMER ---------------- */
+/* TIMER */
 
-let totalTime = 5*60;
-let timerElement=document.getElementById("time");
+let totalTime = 5 * 60;
+let timerElement = document.getElementById("time");
 
 function startTimer(){
 
@@ -246,44 +267,119 @@ totalTime--;
 startTimer();
 
 
-/* ---------------- OPTION SELECT ---------------- */
+
+/* OPTION SELECT WITH UNDO */
 
 function selectOption(tile,inputId){
 
-let questionCard=tile.closest(".question-card");
+let questionCard = tile.closest(".question-card");
+let radio = document.getElementById(inputId);
+
+let alreadySelected = tile.classList.contains("selected");
+
+/* remove all selections */
 
 questionCard.querySelectorAll(".option-tile")
-.forEach(t=>t.classList.remove("selected"));
+.forEach(t => t.classList.remove("selected"));
+
+questionCard.querySelectorAll("input[type=radio]")
+.forEach(r => r.checked=false);
+
+/* toggle */
+
+if(!alreadySelected){
 
 tile.classList.add("selected");
+radio.checked=true;
 
-document.getElementById(inputId).checked=true;
+let index=[...document.querySelectorAll(".question-card")]
+.indexOf(questionCard)+1;
+
+updatePalette(index,"green");
+
+}else{
+
+radio.checked=false;
+
+let index=[...document.querySelectorAll(".question-card")]
+.indexOf(questionCard)+1;
+
+updatePalette(index,"orange");
+
+}
 
 }
 
 
-/* ---------------- QUESTION PALETTE ---------------- */
+
+/* CREATE QUESTION PALETTE */
 
 let totalQuestions={{questions|length}};
 
 for(let i=1;i<=totalQuestions;i++){
 
 document.getElementById("questionPanel").innerHTML+=
-`<button class="qbtn"
+`<button id="qbtn-${i}" class="qbtn gray"
 onclick="scrollToQuestion(${i})">${i}</button>`;
 
 }
+
+
+
+/* SCROLL */
 
 function scrollToQuestion(q){
 
 let cards=document.querySelectorAll(".question-card");
 
+if(cards[q-1]){
 cards[q-1].scrollIntoView({behavior:"smooth"});
+}
 
 }
 
 
-/* ---------------- WARNING FETCH ---------------- */
+
+/* BUTTON ACTIONS */
+
+function saveNext(q){
+
+updatePalette(q,"green");
+scrollToQuestion(q+1);
+
+}
+
+function markReview(q){
+
+updatePalette(q,"pink");
+scrollToQuestion(q+1);
+
+}
+
+function skipQuestion(q){
+
+updatePalette(q,"orange");
+scrollToQuestion(q+1);
+
+}
+
+
+
+/* UPDATE PALETTE */
+
+function updatePalette(q,color){
+
+let btn=document.getElementById("qbtn-"+q);
+
+btn.classList.remove("green","orange","pink","gray");
+
+btn.classList.add(color);
+
+}
+
+
+
+/* WARNING FETCH */
 
 function checkWarnings(){
 
@@ -307,14 +403,17 @@ box.style.display="block";
 setInterval(checkWarnings,5000);
 
 
-/* ---------------- SECURITY ---------------- */
 
-document.getElementById("exam-form").addEventListener("submit", function () {
+/* SECURITY */
 
-    window.onbeforeunload = null;
-    document.removeEventListener("visibilitychange", tabSwitchHandler);
+window.onbeforeunload=function(){
+return "You are taking an exam!";
+};
 
+document.getElementById("exam-form").addEventListener("submit",function(){
+window.onbeforeunload=null;
 });
+
 </script>
 
 </body>

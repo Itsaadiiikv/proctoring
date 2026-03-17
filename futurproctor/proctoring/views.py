@@ -1,4 +1,3 @@
-
 # -------------------- IMPORTS --------------------
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
@@ -76,17 +75,27 @@ def registration(request):
         password = request.POST["password"]
         captured_photo = request.POST.get("photo_data")
 
-        img_data = base64.b64decode(captured_photo.split(",")[1])
-        nparr = np.frombuffer(img_data, np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        try:
 
-        face_locations = face_recognition.face_locations(image)
+            img_data = base64.b64decode(captured_photo.split(",")[1])
+            nparr = np.frombuffer(img_data, np.uint8)
+            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        if not face_locations:
-            messages.error(request, "No face detected.")
+            face_locations = face_recognition.face_locations(image)
+
+            if len(face_locations) != 1:
+                messages.error(request, "Exactly one face must be visible.")
+                return redirect("registration")
+
+            encoding = face_recognition.face_encodings(image, face_locations)[0]
+
+        except Exception as e:
+            messages.error(request, "Image processing error.")
             return redirect("registration")
 
-        encoding = face_recognition.face_encodings(image, face_locations)[0]
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "User already exists.")
+            return redirect("registration")
 
         user = User.objects.create(
             username=email,
@@ -120,32 +129,60 @@ def login(request):
         password = request.POST.get("password")
         photo_data = request.POST.get("captured_photo")
 
-        photo_data = base64.b64decode(photo_data.split(",")[1])
+        try:
 
-        nparr = np.frombuffer(photo_data, np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            photo_data = base64.b64decode(photo_data.split(",")[1])
 
-        face_locations = face_recognition.face_locations(image)
+            nparr = np.frombuffer(photo_data, np.uint8)
+            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        if not face_locations:
-            return JsonResponse({"success": False, "error": "Face not detected"})
+            face_locations = face_recognition.face_locations(image)
 
-        captured_encoding = face_recognition.face_encodings(image, face_locations)[0]
+            if len(face_locations) != 1:
+                return JsonResponse({
+                    "success": False,
+                    "error": "Exactly one face must be visible"
+                })
+
+            captured_encoding = face_recognition.face_encodings(
+                image, face_locations
+            )[0]
+
+        except:
+            return JsonResponse({
+                "success": False,
+                "error": "Face capture error"
+            })
 
         user = authenticate(request, username=email, password=password)
 
         if not user:
-            return JsonResponse({"success": False, "error": "Invalid credentials"})
+            return JsonResponse({
+                "success": False,
+                "error": "Invalid email or password"
+            })
 
         student = user.student
         stored_encoding = np.array(student.face_encoding)
 
-        match = face_recognition.compare_faces([stored_encoding], captured_encoding)[0]
+        # Use face distance instead of weak compare
+        distance = face_recognition.face_distance(
+            [stored_encoding],
+            captured_encoding
+        )[0]
 
-        if not match:
-            return JsonResponse({"success": False, "error": "Face mismatch"})
+        print("FACE DISTANCE:", distance)
+
+        if distance > 0.45:
+            return JsonResponse({
+                "success": False,
+                "error": "Face does not match registered student"
+            })
 
         auth_login(request, user)
+
+        request.session["student_id"] = student.id
+        request.session["student_name"] = student.name
 
         return JsonResponse({
             "success": True,
@@ -242,7 +279,6 @@ def submit_exam(request):
         for q in questions:
 
             qid = q["id"]
-
             user_answer = request.POST.get(f"answer_{qid}")
 
             if user_answer == q["correct_answer"]:
@@ -260,7 +296,6 @@ def submit_exam(request):
         )
 
         messages.success(request, "Exam submitted successfully")
-
         return redirect("result")
 
     return HttpResponse("Invalid request")
@@ -301,6 +336,8 @@ def process_audio(request):
 # -------------------- VIDEO DETECTION --------------------
 def background_processing(request):
 
+    global warning
+
     cap = cv2.VideoCapture(0)
 
     while not stop_event.is_set():
@@ -313,7 +350,6 @@ def background_processing(request):
         labels, processed_frame, person_count, detected_objects = detectObject(frame)
 
         if person_count > 1:
-            global warning
             warning = "ALERT: Multiple persons detected!"
 
         gaze = gaze_tracking(frame)
@@ -332,7 +368,7 @@ def get_warning(request):
     return JsonResponse({"warning": warning})
 
 
-# -------------------- ADD QUESTION PAGE --------------------
+# -------------------- ADD QUESTION --------------------
 def add_question(request):
     return render(request, "add_question.html")
 
@@ -344,13 +380,16 @@ def about(request):
 
 def contact(request):
     return render(request, "contact.html")
-# -------------------- EXAM SUBMISSION SUCCESS PAGE --------------------
+
+
+# -------------------- EXAM SUCCESS --------------------
 def exam_submission_success(request):
-    return render(request, 'exam_submission_success.html')
+    return render(request, "exam_submission_success.html")
+
+
 # -------------------- ADMIN DASHBOARD --------------------
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Count
-from .models import Student
 
 @staff_member_required(login_url='/admin/login/')
 def admin_dashboard(request):
@@ -360,8 +399,6 @@ def admin_dashboard(request):
         cheating_event_count=Count('cheating_events')
     )
 
-    context = {
+    return render(request, "admin_dashboard.html", {
         "students": students
-    }
-
-    return render(request, "admin_dashboard.html", context)
+    })
