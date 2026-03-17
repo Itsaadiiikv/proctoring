@@ -413,7 +413,59 @@ return "You are taking an exam!";
 document.getElementById("exam-form").addEventListener("submit",function(){
 window.onbeforeunload=null;
 });
+/* ---------------- TAB SWITCH DETECTION ---------------- */
 
+let tabSwitchCount = 0;
+
+document.addEventListener("visibilitychange", function () {
+
+    if (document.visibilityState === "hidden") {
+
+        tabSwitchCount++;
+
+        fetch("/record_tab_switch/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            alert(data.message);
+
+            if (data.status === "terminated") {
+
+                alert("Your exam has been terminated.");
+
+                window.location.href = "/exam_submission_success/";
+
+            }
+
+        })
+        .catch(err => console.log(err));
+    }
+});
+/* PREVENT RIGHT CLICK */
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* PREVENT COPY */
+document.addEventListener("copy", e => e.preventDefault());
+
+/* PREVENT DEVTOOLS */
+document.onkeydown = function(e) {
+
+if(e.keyCode == 123) return false; // F12
+if(e.ctrlKey && e.shiftKey && e.keyCode == 73) return false; // Ctrl+Shift+I
+if(e.ctrlKey && e.keyCode == 85) return false; // Ctrl+U
+
+};
+
+/* PREVENT PAGE REFRESH */
+window.onbeforeunload = function() {
+return "You are taking an exam!";
+};
 </script>
 
 </body>

@@ -36,7 +36,8 @@ urlpatterns = [
 
     # Add Question Page
     path('admin_dashboard/add_question/', views.add_question, name='add_question'),
-
+# mine 
+    path("record_tab_switch/", views.record_tab_switch, name="record_tab_switch"),
 ]
 
 # Serve media files during development

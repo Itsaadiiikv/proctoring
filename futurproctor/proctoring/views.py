@@ -402,3 +402,43 @@ def admin_dashboard(request):
     return render(request, "admin_dashboard.html", {
         "students": students
     })
+    # ---------------- TAB SWITCH TRACKING ----------------
+
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
+@csrf_exempt
+@login_required
+def record_tab_switch(request):
+
+    student = request.user.student
+
+    event, created = CheatingEvent.objects.get_or_create(
+        student=student,
+        event_type="tab_switch",
+        defaults={
+            "tab_switch_count": 0,
+            "cheating_flag": False
+        }
+    )
+
+    # increment count
+    event.tab_switch_count += 1
+
+    # mark cheating
+    event.cheating_flag = True
+    event.save()
+
+    # terminate exam after 5 switches
+    if event.tab_switch_count >= 5:
+        return JsonResponse({
+            "status": "terminated",
+            "count": event.tab_switch_count,
+            "message": "Exam terminated due to multiple tab switches."
+        })
+
+    return JsonResponse({
+        "status": "warning",
+        "count": event.tab_switch_count,
+        "message": f"Tab switch detected! Count: {event.tab_switch_count}"
+    })
